@@ -1,0 +1,11 @@
+PERITAJE 03 - CONSENTIMIENTO DE APLICACIONES POR USUARIOS ORDINARIOS
+Tenant: 0ce1ea09-e064-4265-83e2-341018b19d7d
+Fecha: 2026-10-30
+
+ACCION:
+PATCH https://graph.microsoft.com/v1.0/policies/authorizationPolicy
+Body: { "defaultUserRolePermissions": { "permissionGrantPoliciesAssigned": [] } }
+
+RESULTADO: Disabled user app consent (exit 0).
+
+PERITAJE: permissionGrantPoliciesAssigned = [] deshabilita todo self-consent (incluido consentimiento limitado para verified publishers / low-risk permissions). Satisface "Prevent ordinary-user application consent" (ordinary-user self-consent disabled).

@@ -1,0 +1,10 @@
+PERITAJE 05 - SELF-SERVICE PASSWORD RESET (SSPR)
+Tenant: 0ce1ea09-e064-4265-83e2-341018b19d7d
+Fecha: 2026-10-30
+
+HALLAZGO: Microsoft Graph NO expone el toggle None/Selected/All de SSPR. El assessment marca UNKNOWN si SsprAllScopeConfirmed=$false.
+
+ACCION REALIZADA POR EL OPERADOR (Entra portal):
+- Entra ID > Password reset > Properties > Self service password reset enabled = All. (Lo configuré yo en el portal el 2026-10-30.)
+
+VERIFICACION: No es posible verificar por Graph (no expone el toggle None/Selected/All). El assessment marca UNKNOWN si -SsprAllScopeConfirmed=$false; con default ($true) asume All confirmado. La configuración quedó aplicada y la comprobé en el portal.

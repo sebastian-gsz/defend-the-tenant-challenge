@@ -1,0 +1,18 @@
+PERITAJE 04 - POLITICA DE REUNIONES DE TEAMS (Global)
+Tenant: 0ce1ea09-e064-4265-83e2-341018b19d7d
+Fecha: 2026-10-30
+
+VALORES INICIALES (antes):
+- AutoAdmittedUsers: (vacio)
+- DesignatedPresenterRoleMode: (vacio)
+- AllowAnonymousUsersToJoinMeeting: True
+
+ACCION:
+Set-CsTeamsMeetingPolicy -Identity Global -AutoAdmittedUsers "InvitedUsers" -DesignatedPresenterRoleMode "OrganizerOnlyUserOverride" -AllowAnonymousUsersToJoinMeeting $false
+
+VALORES FINALES (confirmados):
+- AutoAdmittedUsers = InvitedUsers  (lobby bypass: People who were invited)  -> punto "Invited-participant Teams lobby bypass"
+- DesignatedPresenterRoleMode = OrganizerOnlyUserOverride (Who can present: Only organizers and co-organizers) -> punto "Organizer-only default Teams presenters"
+- AllowAnonymousUsersToJoinMeeting = False (anonymous cannot join) -> punto "Prevent anonymous Teams meeting join"
+
+PERITAJE: En Linux/WSL, Connect-MicrosoftTeams con -Credential fallo tras activar MFA (AADSTS50076); se uso -UseDeviceAuthentication (device code) que soporta MFA. Reconectar con Connect-MicrosoftTeams sin credenciales en Linux intenta cargar kernel32.dll (fallo). Por eso auth Teams se hace una sola vez por proceso.

@@ -1,0 +1,31 @@
+PERITAJE 00 - ENTORNO Y HERRAMIENTAS
+Fecha: 2026-10-30
+Tenant: 0ce1ea09-e064-4265-83e2-341018b19d7d (WWLCPx52164899.onmicrosoft.com)
+Admin: admin@WWLCPx52164899.onmicrosoft.com
+
+HALLAZGOS:
+- Entorno Windows (win32) con PowerShell 7 instalado en C:\Program Files\PowerShell\7\pwsh.exe
+- WSL2 disponible con distros: docker-desktop (stopped), kali-linux (stopped, WSL2)
+- Kali Linux 2026.3 (Debian-based rolling), kernel 6.18.33.2-microsoft-standard-WSL2
+- Decisión: trabajar en WSL (kali-linux) para aislar credenciales MSAL del perfil de Windows (no ensuciar Windows con cuenta del lab).
+- sudo requiere password en Kali para usuario 'uhm'; se usa 'wsl -d kali-linux -u root' para instalaciones.
+
+INSTALACION POWERSHELL 7.6.9 (WSL):
+- Repositorio Microsoft (packages.microsoft.com/debian/12) falló por firma SHA1 rechazada por sqv (sequoia) de Kali.
+- Alternativa: descarga directa del .deb desde GitHub releases.
+- Comando: wget https://github.com/PowerShell/PowerShell/releases/download/v7.6.9/powershell_7.6.9-1.deb_amd64.deb && dpkg -i
+- Resultado: PowerShell 7.6.9 instalado OK.
+
+MODULOS INSTALADOS (Scope AllUsers):
+- Microsoft.Graph 2.41.2 (meta) -> Authentication, Identity.SignIns, Identity.Governance
+- MicrosoftTeams 8.0.0
+- ExchangeOnlineManagement 3.10.1
+- Ruta: /usr/local/share/powershell/Modules
+
+SCRIPT DE ASSESSMENT:
+- Archivo: AA-AssessM365Status.ps1 (pegado como pasted-text, copiado a workspace)
+- Parse OK en pwsh 7 (scriptblock::Create).
+- Requiere modulos: Microsoft.Graph.Authentication, Microsoft.Graph.Identity.SignIns, Microsoft.Graph.Identity.Governance, MicrosoftTeams, ExchangeOnlineManagement.
+- Automatic Teams cert setup requiere Windows ($IsWindows). En WSL se usa -UseTeamsDeviceAuthentication o -UseTeamsUserAuthentication.
+
+PERITAJE: El script es Windows-oriented para Teams (kernel32.dll.so error al reconectar). En WSL se implementan controles directamente via Graph (ROPC/device code) + Teams (credential/device code), y se verifica con consultas directas.

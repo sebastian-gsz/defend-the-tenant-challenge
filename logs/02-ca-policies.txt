@@ -1,0 +1,39 @@
+PERITAJE 02 - POLITICAS DE CONDITIONAL ACCESS (CA)
+Tenant: 0ce1ea09-e064-4265-83e2-341018b19d7d
+Fecha implementacion: 2026-10-30
+
+POLITICAS CREADAS (state=enabled, no report-only):
+
+1) "MFA - All Users" (cubre MFA admin roles + MFA all users)
+   - includeUsers: All
+   - includeApplications: All
+   - clientAppTypes: all
+   - grantControls: AND, [mfa]
+   - Nota: una sola politica All users satisface tanto "MFA for administrative roles" como "MFA for all users" en el assessment (allUsersCovered=true).
+
+2) "Block Legacy Auth"
+   - includeUsers: All
+   - includeApplications: All
+   - clientAppTypes: exchangeActiveSync, other
+   - grantControls: OR, [block]
+   - Nota: clientAppTypes sin "all" pero con ambos legacy; Test-SecureM365CaPolicyScope con -Legacy acepta.
+
+3) "MFA - Sign-in Risk Medium+High"
+   - includeUsers: All
+   - includeApplications: All
+   - signInRiskLevels: medium, high
+   - grantControls: AND, [mfa]
+   - sessionControls.signInFrequency: isEnabled=true, frequencyInterval=everyTime, authenticationType=primaryAndSecondaryAuthentication
+   - Nota: signInFrequency "every time" se representa en Graph con frequencyInterval="everyTime" (NO value/type). El assessment lee frequency.frequencyInterval.
+
+4) "User Risk High - Remediation"
+   - includeUsers: All
+   - includeApplications: All
+   - userRiskLevels: high
+   - grantControls: AND, [mfa, passwordChange]  (un solo control de remediacion: passwordChange; NO riskRemediation junto)
+   - sessionControls.signInFrequency: everyTime, primaryAndSecondaryAuthentication
+   - Nota: error Graph si se usa value/type con passwordChange -> solo frequencyInterval=everyTime soportado.
+
+HALLAZGO: signInFrequency debe usar frequencyInterval="everyTime" (no value=1/type=hours) cuando hay passwordChange; el assessment lee frequency.frequencyInterval.
+
+PERITAJE DE DISENO: Una politica All users MFA cubre tambien admins (allUsersCovered=true en el assessment), evitando duplicar politicas. Para el punto "MFA for administrative roles" el assessment acepta all-users policy.

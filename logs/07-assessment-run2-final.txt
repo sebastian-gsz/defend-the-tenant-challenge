@@ -1,0 +1,32 @@
+PERITAJE 07 - ASSESSMENT FINAL (grader) - RUN 2: 10/10 IMPLEMENTED
+Fecha: 2026-10-30 16:25 UTC (Checked at: 2026-10-30 15:25:47Z)
+Comando: .\AA-AssessM365Status.ps1 -TenantId 0ce1ea09-e064-4265-83e2-341018b19d7d -UseGraphBrowserPkce -UseTeamsUserAuthentication
+Sesion: Windows pwsh 7.6.9, reutilizo contextos Graph (PKCE) y Teams de la sesion anterior.
+
+RESULTADO FINAL: Summary: 10 implemented, 0 not configured, 0 unknown (10 recommendations).
+
+1  IMPLEMENTED  MFA admin roles        'MFA - All Users' (e9753cef) + risk policies; broad coverage verified
+2  IMPLEMENTED  MFA all users          'MFA - All Users' (e9753cef)
+3  IMPLEMENTED  Block legacy auth      'Block Legacy Auth'
+4  IMPLEMENTED  Sign-in risk MFA       'MFA - Sign-in Risk Medium+High' (321c2d89) - FIX frequencyInterval=everyTime aplicado
+5  IMPLEMENTED  User risk remediation  'User Risk High - Remediation' (24b4173b)
+6  IMPLEMENTED  App consent disabled   No default-user self-consent policy assigned
+7  IMPLEMENTED  Teams lobby            AutoAdmittedUsers='InvitedUsers'
+8  IMPLEMENTED  Teams presenters       DesignatedPresenterRoleMode='OrganizerOnlyUserOverride'
+9  IMPLEMENTED  Anonymous join         AllowAnonymousUsersToJoinMeeting='False'
+10 IMPLEMENTED  SSPR All               confirmado en el portal (default true); captura verificada
+
+FIX APLICADO ENTRE RUN 1 Y RUN 2 (check 4):
+PATCH conditionalAccess/policies/321c2d89-394b-448e-b70a-250f7136592a con
+sessionControls.signInFrequency = { isEnabled=true, frequencyInterval="everyTime", authenticationType="primaryAndSecondaryAuthentication" }
+Verificacion GET post-PATCH: frequencyInterval=everyTime, isEnabled=true, authenticationType=primaryAndSecondaryAuthentication.
+
+SNAPSHOT OFICIAL (evidencia del grader):
+C:\SecureM365Snapshots\0ce1ea09-e064-4265-83e2-341018b19d7d-m365-recommendation-status-20261030-152547626Z.json
+
+ADVERTENCIAS SOLO-ADVISORY (no afectan el resultado):
+- Registration advisory: la mayoria de cuentas sin MFA-capable/SSPR-registered reportado (lag hasta 36h).
+- Exclusion advisory: no exclusions found on matching enabled CA policies (OK, no break-glass en este lab).
+
+LABORATORIO M365 TENANT SECURITY CONTROLS: CERRADO AL 100%.
+Para recrear en tenant propio: seguir windows-labs/tasks/01..09 + SSPR All en portal.

@@ -1,0 +1,18 @@
+PERITAJE 01 - AUTENTICACION ROPC (Resource Owner Password Credentials)
+Fecha: 2026-10-30
+
+OBJETIVO: Autenticar a Graph y Teams de forma no interactiva (sin device code) usando usuario/password del admin.
+
+HALLAZGOS:
+- ROPC via Connect-MgGraph -Username/-Password NO soportado en Microsoft.Graph 2.41.2 (parametro Username no existe).
+- Alternativa: Invoke-RestMethod al endpoint oauth2/v2.0/token con grant_type=password, client_id=14d82eec-204b-4c2f-b7e8-296a70dab67e (cliente publico del SDK).
+- Resultado inicial: ROPC_OK, access_token length 3007, GRAPH_CONNECTED Tenant=... Auth=UserProvidedAccessToken Account=admin@wwlcpx52164899.onmicrosoft.com.
+- Teams: Connect-MicrosoftTeams -Credential (PSCredential) funciono inicialmente -> TEAMS_CONNECTED, Global meeting policy leida OK.
+
+PERITAJE CRITICO (bloqueo posterior):
+- Tras crear las politicas CA de MFA (punto 1), ROPC fallo con AADSTS50076: "Due to a configuration change... you must use multi-factor authentication".
+- Causa: la nueva politica CA exige MFA para All users, incluyendo el admin. ROPC no soporta MFA.
+- Teams credential auth tambien fallo con el mismo AADSTS50076.
+- CONCLUSION: Despues de activar MFA, la unica autenticacion viable es device code (interactiva con MFA) o browser PKCE. ROPC solo funciona en tenants sin MFA.
+
+LECCION: En labs de M365, hacer primero la autenticacion (ROPC si no hay MFA) para implementar controles; una vez MFA activo, cambiar a device code para verificacion. Nunca depender de ROPC tras activar MFA.

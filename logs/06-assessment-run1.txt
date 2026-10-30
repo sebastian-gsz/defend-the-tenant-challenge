@@ -1,0 +1,31 @@
+PERITAJE 06 - ASSESSMENT REAL (grader) - RUN 1
+Fecha: 2026-10-30 16:22
+Comando: .\AA-AssessM365Status.ps1 -TenantId 0ce1ea09-e064-4265-83e2-341018b19d7d -UseGraphBrowserPkce -UseTeamsUserAuthentication (Windows pwsh 7.6.9)
+
+RESULTADO: 9 IMPLEMENTED, 1 NOT-CONFIGURED.
+
+1  IMPLEMENTED   MFA admin roles    - 'MFA - All Users' + risk policies (broad coverage verified)
+2  IMPLEMENTED   MFA all users      - 'MFA - All Users'
+3  IMPLEMENTED   Block legacy auth  - 'Block Legacy Auth'
+4  NOT-CONFIGURED Sign-in risk MFA  - No matching policy (frequencyInterval != everyTime)
+5  IMPLEMENTED   User risk remediation - 'User Risk High - Remediation'
+6  IMPLEMENTED   App consent disabled
+7  IMPLEMENTED   Teams lobby        - AutoAdmittedUsers='InvitedUsers'
+8  IMPLEMENTED   Teams presenters   - DesignatedPresenterRoleMode='OrganizerOnlyUserOverride'
+9  IMPLEMENTED   Anonymous join     - AllowAnonymousUsersToJoinMeeting='False'
+10 IMPLEMENTED   SSPR All           - operator-confirmed (default true)
+
+CAUSA RAIZ (check 4):
+- En el primer run (implement_controls.ps1 via ROPC), 'MFA - Sign-in Risk Medium+High' se creo con
+  signInFrequency = { value=1, type=hours } (formato antiguo).
+- El script fallo justo despues en la 4a politica (passwordChange + value/type -> BadRequest).
+- El re-intento con frequencyInterval=everyTime nunca actualizo esta politica: ROPC murio con AADSTS50076
+  al activarse MFA. finish_lab.ps1 solo upserto 'User Risk High - Remediation'.
+- El assessment lee sessionControls.signInFrequency.frequencyInterval y por eso no matchea.
+
+FIX: PATCH de la politica con frequencyInterval=everyTime + authenticationType=primaryAndSecondaryAuthentication
+(lo ejecuté en mi sesión de Windows, que ya estaba autenticada; verificación pendiente).
+
+NOTAS ADICIONALES DEL RUN:
+- Errores previos: WinGet (script en PS5.1) y device-code timeout 120s. Solucion: pwsh 7 + browser PKCE.
+- Registration advisory: la mayoria de cuentas sin MFA-capable reportado (lag hasta 36h; solo advisory, no bloquea).

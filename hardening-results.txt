@@ -1,0 +1,93 @@
+================================================================
+hardening-results.txt
+Reto: Defend the Tenant (Microsoft) - Fase 1: Tenant Hardening
+================================================================
+
+Tenant del laboratorio : WWLCPx52164899.onmicrosoft.com
+Tenant ID              : 0ce1ea09-e064-4265-83e2-341018b19d7d
+Cuenta administrativa  : admin@WWLCPx52164899.onmicrosoft.com
+Fecha de hardening     : 30 de octubre de 2026
+Herramientas           : Microsoft Graph PowerShell (Microsoft.Graph 2.41.2),
+                         Microsoft Teams PowerShell (MicrosoftTeams 8.0.0),
+                         ExchangeOnlineManagement 3.10.1, en PowerShell 7.6.9.
+
+RESULTADO GLOBAL
+----------------
+Ejecuté el script de evaluación del laboratorio (AA-AssessM365Status.ps1) contra
+mi tenant y el resultado fue:
+
+    10 implemented, 0 not configured, 0 unknown (10 recomendaciones)
+
+Snapshot oficial generado por el script:
+C:\SecureM365Snapshots\0ce1ea09-e064-4265-83e2-341018b19d7d-m365-recommendation-status-20261030-152547626Z.json
+
+CONTROLES APLICADOS (10/10)
+---------------------------
+
+1. MFA para roles administrativos - APLICADO
+   Apliqué una política de Conditional Access "MFA - All Users" en estado enabled
+   que exige MFA a todos los usuarios, incluyendo todos los roles administrativos.
+   El script la validó como IMPLEMENTED con cobertura amplia verificada
+   ("broad MFA protection with only approved exclusions was verified").
+
+2. MFA para todos los usuarios - APLICADO
+   La política "MFA - All Users" (All users, All resources, control de concesión
+   MFA, operador AND) queda forzada, no en modo report-only. El script la reportó
+   IMPLEMENTED.
+
+3. Bloqueo de autenticación legacy - APLICADO
+   Creé la política "Block Legacy Auth" (enabled) dirigida a All users sobre
+   All resources, cubriendo los tipos de cliente Exchange ActiveSync y Other
+   (clientes legacy). El script la reportó IMPLEMENTED:
+   "Enforced legacy-authentication block: Block Legacy Auth".
+
+4. MFA por riesgo de inicio de sesión elevado - APLICADO
+   Política "MFA - Sign-in Risk Medium+High" (enabled): All users, All resources,
+   riesgos medium y high, control MFA y reautenticación "Every time" con
+   primaryAndSecondaryAuthentication (primaria + multifactor). El script la
+   reportó IMPLEMENTED.
+
+5. Remediación de riesgo de usuario alto - APLICADO
+   Política "User Risk High - Remediation" (enabled): All users, All resources,
+   riesgo high, controles MFA + passwordChange (un solo control de remediación,
+   no ambos) y reautenticación "Every time". El script la reportó IMPLEMENTED.
+
+6. Prevención de consentimiento de aplicaciones por usuarios comunes - APLICADO
+   Deshabilité el autoconsentimiento en la authorization policy del tenant
+   (defaultUserRolePermissions.permissionGrantPoliciesAssigned = []), de modo que
+   ningún usuario común puede conceder consentimiento a aplicaciones que accedan
+   a datos de la organización en su nombre, incluyendo el consentimiento limitado
+   a publishers verificados o permisos de bajo riesgo. El script lo reportó
+   IMPLEMENTED.
+
+7. Lobby de Teams: solo participantes invitados - APLICADO
+   Configuré la política Global (Org-wide default) de reuniones de Teams con
+   AutoAdmittedUsers = InvitedUsers ("People who were invited"). El script lo
+   reportó IMPLEMENTED.
+
+8. Presentadores solo organizadores - APLICADO
+   Configuré la política Global con DesignatedPresenterRoleMode =
+   OrganizerOnlyUserOverride ("Only organizers and co-organizers"); el resto de
+   participantes entra como asistente por defecto. El script lo reportó
+   IMPLEMENTED.
+
+9. Prohibir la unión anónima a reuniones de Teams - APLICADO
+   Deshabilité AllowAnonymousUsersToJoinMeeting = False en la política Global,
+   de modo que los usuarios anónimos no pueden unirse a las reuniones (no basta
+   con que esperen en el lobby). El script lo reportó IMPLEMENTED.
+
+10. SSPR habilitado para todos - APLICADO
+    En Entra ID > Password reset > Properties configuré
+    "Self service password reset enabled" en All (no en Selected ni en grupos).
+    El script lo reportó IMPLEMENTED.
+
+NOTAS
+-----
+- Todas las políticas de Conditional Access quedaron en estado "enabled"
+  (enforced); ninguna en report-only ni disabled.
+- No definí exclusiones porque el laboratorio no entregó cuentas break-glass; el
+  assessment lo confirma ("no exclusions found on matching enabled Conditional
+  Access policies").
+- Los avisos "registration advisory" del script son solo informativos: los datos
+  de registro MFA/SSPR pueden tardar hasta 36 horas en reflejarse y no afectan el
+  resultado de configuración.
